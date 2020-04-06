@@ -1,9 +1,31 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { shallow, mount } from 'enzyme';
 import App from './App';
 
-test('renders learn react link', () => {
-  const { getByText } = render(<App />);
-  const linkElement = getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
-});
+describe('App Component', () => {
+  afterEach(() => {
+    global.fetch.mockClear()
+  });
+
+  beforeEach(() => {
+    global.fetch = jest.fn().mockImplementation(() => {
+      return  new Promise((resolve, reject) => {
+        resolve({
+          ok: true, 
+          Id: '123', 
+          json: function() { 
+            return [
+              { id: 123, name: 'Name one'}
+            ]
+          }
+        });
+      });
+    });
+  });
+
+  it('should fetch when component did mount', () => {
+    const wrapper = mount(<App />);
+    console.log(wrapper.debug());
+    expect(global.fetch).toHaveBeenCalledWith('https://jsonplaceholder.typicode.com/users')
+  });
+}); 
